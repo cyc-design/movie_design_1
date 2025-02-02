@@ -34,53 +34,46 @@
 
     <div class="container" id="movieContainer"></div> <!-- 動態插入內容 -->
 
-    <div id="image-container"></div>
+    <div id="image-gallery"></div>
 
     <script>
-            
-        const imageContainer = document.getElementById("image-container");
-        const imageList = ["image1.jpg", "image2.jpg", "image3.jpg"]; // 圖片名稱列表
-        const baseUrl = "https://github.com/cyc-design/movie_design_1/tree/master/movie_images/";
-
-        imageList.forEach(img => {
-            let imgElement = document.createElement("img");
-            imgElement.src = baseUrl + img;
-            imgElement.alt = "電影海報";
-            imgElement.style.width = "200px"; // 設定圖片大小
-            imageContainer.appendChild(imgElement);
-        });
-
-
+        const imageFolder = "https://raw.githubusercontent.com/cyc-design/movie_design_1/master/movie_images/";
         const url = 'https://raw.githubusercontent.com/cyc-design/movie_design_1/master/movie.xlsx'; // Excel 檔案 URL
-        
+    
         fetch(url)
             .then(response => response.arrayBuffer())
             .then(data => {
-                const workbook = XLSX.read(data, {type: 'array'});
+                const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0]; // 取得第一個工作表
                 const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1}); // 轉成 JSON 陣列 (每行一個陣列)
-
+                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // 轉成 JSON 陣列 (每行一個陣列)
+    
                 const container = document.getElementById('movieContainer');
-
+    
                 jsonData.forEach((row, index) => {
-                    // 如果第一列是標題，則跳過 (可移除)
-                    if (index === 0) return;
-
+                    if (index === 0) return; // 跳過標題列
+    
                     const box = document.createElement('div');
                     box.classList.add('box');
-
-                    // 逐個欄位填入框框
-                    let content = `<div class="title">${row[0] ? row[0] : "No Title"}</div>`; // 第 1 欄 (標題)
-                    for (let i = 1; i < row.length; i++) { 
-                        content += `<div class="description">${row[i] ? row[i] : "No Data"}</div>`; // 其他欄位
-                    }
-
+    
+                    // 取得對應的圖片編號
+                    let imageNumber = index; // 確保圖片名稱與電影排序一致
+                    let imageSrc = `${imageFolder}img_${imageNumber}.jpg`;
+    
+                    // 生成 HTML 內容
+                    let content = `
+                        <img src="${imageSrc}" alt="電影海報 ${imageNumber}" style="width: 100%; height: 350px; object-fit: contain; background-color: #eee;">
+                        <div class="title" style="font-size: 18px; font-weight: bold; text-align: center; margin-top: 10px;">${row[0] ? row[0] : "No Title"}</div>
+                        <div class="description" style="text-align: center;">上映時間: ${row[1] ? row[1] : "No Data"}</div>
+                    `;
+    
                     box.innerHTML = content;
                     container.appendChild(box);
                 });
             })
             .catch(error => console.error('錯誤:', error));
     </script>
+    
+    
 </body>
 </html>
