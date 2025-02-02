@@ -2,6 +2,10 @@
 ::git init
 ::git remote add origin https://github.com/你的GitHub帳號/你的儲存庫.git
 
+git add .
+git commit -m "解決合併衝突"
+git push origin master
+
 @echo off
 cd /d "C:\Users\yiche\Desktop\web_train"
 

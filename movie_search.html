@@ -34,8 +34,24 @@
 
     <div class="container" id="movieContainer"></div> <!-- 動態插入內容 -->
 
+    <div id="image-container"></div>
+
     <script>
-        const url = 'https://raw.githubusercontent.com/yichengtsai/movie_search/master/movie.xlsx'; // Excel 檔案 URL
+            
+        const imageContainer = document.getElementById("image-container");
+        const imageList = ["image1.jpg", "image2.jpg", "image3.jpg"]; // 圖片名稱列表
+        const baseUrl = "https://github.com/cyc-design/movie_design_1/tree/master/movie_images/";
+
+        imageList.forEach(img => {
+            let imgElement = document.createElement("img");
+            imgElement.src = baseUrl + img;
+            imgElement.alt = "電影海報";
+            imgElement.style.width = "200px"; // 設定圖片大小
+            imageContainer.appendChild(imgElement);
+        });
+
+
+        const url = 'https://raw.githubusercontent.com/cyc-design/movie_design_1/master/movie.xlsx'; // Excel 檔案 URL
         
         fetch(url)
             .then(response => response.arrayBuffer())
