@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <title>讀取 GitHub 上的 Excel 檔案</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h2>GitHub Excel 讀取範例</h2>
+<button onclick="loadExcel()">讀取 Excel</button>
+<table id="output"></table>
+
+<script>
+function loadExcel() {
+    const url = 'https://raw.githubusercontent.com/yichengtsai/movie_search/master/movie.xlsx';  // 替換成你的檔案 URL
+    
+    // 使用 fetch 下載 Excel 檔案
+    fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheetName = workbook.SheetNames[0]; // 取得第一個工作表
+            const sheet = workbook.Sheets[sheetName];
+            
+            // 取得每一列作為陣列（每列每個欄位的值組成一個陣列）
+            const rows = XLSX.utils.sheet_to_json(sheet, {header: 1}); 
+
+            // 將每一列轉換為每個直排的陣列
+            const formattedOutput = rows[0].map((_, colIndex) => {
+                return rows.map(row => row[colIndex]);  // 將每一列的每個欄位當作一個新陣列
+            });
+
+            // 創建表格顯示每個直排陣列
+            const table = document.getElementById('output');
+            table.innerHTML = ''; // 清空表格內容
+
+            // 添加表格標題行
+            const headerRow = document.createElement('tr');
+            formattedOutput.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col[0];  // 顯示每個直排的標題
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // 添加表格資料行
+            const numRows = formattedOutput[0].length;
+            for (let i = 1; i < numRows; i++) {  // 從第2行開始填充數據
+                const tr = document.createElement('tr');
+                formattedOutput.forEach(col => {
+                    const td = document.createElement('td');
+                    td.textContent = col[i];  // 顯示直排中的每個值
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            }
+        })
+        .catch(error => console.error('錯誤:', error));
+}
+</script>
+
+</body>
+</html>

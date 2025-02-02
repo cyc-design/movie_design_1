@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <title>main</title>
+</head>
+
+<style>
+    .container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 5個一排 */
+            gap: 15px; /* 設定框框間距 */
+            justify-content: center;
+            padding: 20px;
+    }
+    .box {
+        width: 300px;
+        height: 450px;
+        margin: 10px;
+        border: 1px black solid;
+    }
+</style>
+
+<body>
+    <div style=" font-family: Sour Gummy, serif;font-style: sold; font-size: 40px;margin-left: 20px;">Movie Search</div>
+    <div style="text-align: center; vertical-align: center;margin-top: 20px;">
+        <input type="text" placeholder="search movie name" style="width: 250px;height: 30px;">
+    </div>
+
+    <div class="container" id="movieContainer"></div> <!-- 動態插入內容 -->
+
+    <script>
+        const url = 'https://raw.githubusercontent.com/yichengtsai/movie_search/master/movie.xlsx'; // Excel 檔案 URL
+        
+        fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0]; // 取得第一個工作表
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1}); // 轉成 JSON 陣列 (每行一個陣列)
+
+                const container = document.getElementById('movieContainer');
+
+                jsonData.forEach((row, index) => {
+                    // 如果第一列是標題，則跳過 (可移除)
+                    if (index === 0) return;
+
+                    const box = document.createElement('div');
+                    box.classList.add('box');
+
+                    // 逐個欄位填入框框
+                    let content = `<div class="title">${row[0] ? row[0] : "No Title"}</div>`; // 第 1 欄 (標題)
+                    for (let i = 1; i < row.length; i++) { 
+                        content += `<div class="description">${row[i] ? row[i] : "No Data"}</div>`; // 其他欄位
+                    }
+
+                    box.innerHTML = content;
+                    container.appendChild(box);
+                });
+            })
+            .catch(error => console.error('錯誤:', error));
+    </script>
+</body>
+</html>
